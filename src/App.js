@@ -4,11 +4,12 @@ import images from './images';
 
 function App() {
   const windowId = useMemo(() => Math.random(), [])
+  const [loading, setLoading] = useState(true)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [imageId, setImageId] = useState(0)
   const image1Url = images[imageId].censor
-  const image2Url = images[imageId].uncensor
   const [index, setIndex] = useState(0)
+  const image2Url = images[imageId].uncensor
 
   const bc = useMemo(() => new BroadcastChannel('biya'), []);
 
@@ -16,9 +17,9 @@ function App() {
     if (index !== 2) {
       window.open(window.location.href, '_blank',
         index === 0 ?
-          `location=yes,height=${window.innerHeight},width=${window.innerWidth},scrollbars=no,status=yes`
+          `toolbar=no, menubar=no, location=yes,height=${window.innerHeight},width=${window.innerWidth},scrollbars=no,status=yes`
           :
-          `location=yes,height=${window.innerHeight / 4},width=${window.innerWidth / 4},scrollbars=no,status=yes`
+          `toolbar=no, menubar=no, location=yes,height=${window.innerHeight / 4},width=${window.innerWidth / 4},scrollbars=no,status=yes`
       )
     } else {
       window.close()
@@ -47,11 +48,13 @@ function App() {
         case 'index_1':
           if (event.data.value === windowId) {
             setIndex(1)
+            document.title = images[imageId].title
           }
           break;
         case 'index_2':
           if (event.data.value === windowId) {
             setIndex(2)
+            document.title = "Gương thần"
           }
           break;
         case 'update_position':
@@ -61,14 +64,13 @@ function App() {
           setPosition({ x: absoluteX - window.screenX, y: absoluteY - window.screenY })
           break;
         case 'image_id':
+          console.log(event.data)
           setImageId(event.data.value)
           break;
         default:
           break;
       }
     };
-
-    bc.postMessage({ type: 'new_tab', value: windowId });
 
     return () => bc.onmessage = null
   }, [bc, windowId, index, imageId,])
@@ -80,8 +82,6 @@ function App() {
     const interval = setInterval(function () {
       if (oldX !== window.screenX || oldY !== window.screenY) {
         updateNewPosition({ x: position.x - window.screenX + oldX, y: position.y - window.screenY + oldY })
-      } else {
-        console.log('not moved!');
       }
       oldX = window.screenX;
       oldY = window.screenY;
@@ -90,15 +90,38 @@ function App() {
     return () => clearInterval(interval)
   }, [position])
 
+  useEffect(() => {
+    bc.postMessage({ type: 'new_tab', value: windowId });
+  }, [windowId])
+
+  useEffect(() => {
+    setLoading(true)
+    Promise.all(
+      Array.from(document.images)
+        .filter(img => !img.complete)
+        .map(img => new Promise(
+          resolve => { img.onload = img.onerror = resolve; }
+        ))).then(() => {
+          setLoading(false)
+        });
+  }, [imageId])
+
   return (
     <>
+      {loading && index !== 0 &&
+        <div class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+          <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+          <h2 class="text-center text-white text-xl font-semibold">Đang tải...</h2>
+          <p class="w-1/3 text-center text-white">Đừng lóng, chờ 1 xíu là tải xong...</p>
+        </div>
+      }
       <div className="App w-[100vw] h-[100vh] bg-gray-50 dark:bg-gray-800">
-        <div className='container mx-auto text-center pt-2'>
+        <div className='container mx-auto text-center pt-2 px-1'>
           <h1 className="text-4xl font-extrabold leading-none tracking-tight text-gray-900  dark:text-white uppercase mb-2">Gương chiếu sếch</h1>
           <a
             target='_blank'
             href="https://github.com/zennomi/Seg-Mirror"
-            className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+            className="inline-flex gap-x-1 mb-2 items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={24}
@@ -112,21 +135,27 @@ function App() {
             </svg>
             Github
           </a>
-          <div className='flex flex-col gap-y-2'>
-            <label for="images" className="block text-sm font-medium text-gray-900 dark:text-white">Chọn ảnh</label>
-            <select
-              id="images"
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-              value={imageId}
-              onChange={(event) => {
-                setImageId(event.target.value)
-                bc.postMessage({ type: 'image_id', value: event.target.value })
-              }}
-            >
-              {
-                images.map((image, index) => <option value={index}>{image.title}</option>)
-              }
-            </select>
+          {
+            index !== 0 &&
+            <div className='flex flex-col gap-y-2 mb-2'>
+              <label for="images" className="block text-sm font-medium text-gray-900 dark:text-white">Chọn ảnh</label>
+              <select
+                id="images"
+                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                value={imageId}
+                onChange={(event) => {
+                  console.log("Change Event!")
+                  setImageId(event.target.value)
+                  bc.postMessage({ type: 'image_id', value: event.target.value })
+                }}
+              >
+                {
+                  images.map((image, index) => <option value={index}>{image.title}</option>)
+                }
+              </select>
+            </div>
+          }
+          <div>
             <button
               className='text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
               onClick={handleOpenNewWindow}>{
@@ -143,7 +172,7 @@ function App() {
               updateNewPosition({ x: data.x, y: data.y });
             }}
           >
-            <img src={index === 2 ? image2Url : image1Url} draggable="false" />
+            <img className='cursor-move max-w-[900px]' src={index === 2 ? image2Url : image1Url} draggable="false" />
           </Draggable>
         }
       </div>
