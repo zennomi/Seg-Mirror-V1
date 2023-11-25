@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import Draggable from 'react-draggable';
+import images from './images';
 
 function App() {
-  const image1Url = 'https://c3.kemono.su/data/7e/11/7e110eb9f59b3ddbf78059a05e91324931407d1f22d873e625abc2f795d12ac5.jpg?f=b80a8f6c-a5f4-4f3c-8d50-8fb76a10de49.jpg'
-  const image2Url = 'https://c6.kemono.su/data/1c/ec/1cece150ea168816b68bdbed130738c8d7de3fa81d6ca4a5ee7bc70f20fc57c7.jpg?f=eeacf854-8260-4c59-8ad6-ba11f75ef4d9.jpg'
   const windowId = useMemo(() => Math.random(), [])
   const [position, setPosition] = useState({ x: 0, y: 0 })
-
+  const [imageId, setImageId] = useState(0)
+  const image1Url = images[imageId].censor
+  const image2Url = images[imageId].uncensor
   const [index, setIndex] = useState(0)
 
-  const newTabBC = useMemo(() => new BroadcastChannel('biya'), []);
+  const bc = useMemo(() => new BroadcastChannel('biya'), []);
 
   const handleOpenNewWindow = () => {
     if (index !== 2) {
@@ -25,22 +26,21 @@ function App() {
   }
 
   const updateNewPosition = ({ x, y }) => {
-    newTabBC.postMessage({ type: 'update_position', value: { x, y, windowX: window.screenX, windowY: window.screenY } })
+    bc.postMessage({ type: 'update_position', value: { x, y, windowX: window.screenX, windowY: window.screenY } })
     setPosition({ x, y })
   }
 
   useEffect(() => {
-    newTabBC.onmessage = (event) => {
+    bc.onmessage = (event) => {
       switch (event.data.type) {
         case 'new_tab':
           if (event.data.value !== windowId) {
-            if (index === 0) {
-              newTabBC.postMessage({ type: 'index_1', value: event.data.value, })
-            } else if (index === 1) {
-              newTabBC.postMessage({ type: 'index_2', value: event.data.value, })
+            if (index === 1) {
+              bc.postMessage({ type: 'index_2', value: event.data.value, })
               updateNewPosition(position)
+              bc.postMessage({ type: 'image_id', value: imageId })
             } else {
-              newTabBC.postMessage({ type: 'index_1', value: event.data.value, })
+              bc.postMessage({ type: 'index_1', value: event.data.value, })
             }
           }
           break;
@@ -60,15 +60,18 @@ function App() {
           const absoluteY = windowY + y
           setPosition({ x: absoluteX - window.screenX, y: absoluteY - window.screenY })
           break;
+        case 'image_id':
+          setImageId(event.data.value)
+          break;
         default:
           break;
       }
     };
 
-    newTabBC.postMessage({ type: 'new_tab', value: windowId });
+    bc.postMessage({ type: 'new_tab', value: windowId });
 
-    return () => newTabBC.onmessage = null
-  }, [newTabBC, windowId, index])
+    return () => bc.onmessage = null
+  }, [bc, windowId, index, imageId])
 
   useEffect(() => {
     var oldX = window.screenX,
@@ -90,8 +93,19 @@ function App() {
   return (
     <div className="App">
       <div>
+        <select
+          value={imageId}
+          onChange={(event) => {
+            setImageId(event.target.value)
+            bc.postMessage({ type: 'image_id', value: event.target.value })
+          }}
+        >
+          {
+            images.map((image, index) => <option value={index}>{image.title}</option>)
+          }
+        </select>
         <button onClick={handleOpenNewWindow}>{
-          index === 0 ? "Cho 1 em xinh tươi ra đây" :
+          index === 0 ? "Cho 1 em nữ sinh cao trung ra đây" :
             index === 1 ? "Mở gương thần" : "Đóng gương thần"
         }</button>
       </div>
