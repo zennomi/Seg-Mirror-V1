@@ -1,14 +1,24 @@
 const images = [
-        {
+    {
         title: "Saekano",
         censor: "https://telegraph-image-bak.pages.dev/file/900af1ded9657b3c3ec4d.png",
         uncensor: "https://telegraph-image-bak.pages.dev/file/e01e5a33de465a3a7edfc.png",
     },
-        // {
-    //     title: "Nữ sinh cao trung",
-    //     censor: "",
-    //     uncensor: "",
-    // },
+    {
+        title: "Machi váy đầm",
+        censor: "https://telegraph-image-bak.pages.dev/file/0652b837a4fd9c4a06260.png",
+        uncensor: "https://telegraph-image-bak.pages.dev/file/cb7f7491043006a22254c.png",
+    },
+    {
+        title: "Machi bò",
+        censor: "https://telegraph-image-bak.pages.dev/file/d84bc6d707aea3f76fc0a.png",
+        uncensor: "https://telegraph-image-bak.pages.dev/file/67987f40d2fe73694310a.png",
+    },
+    {
+        title: "Biya",
+        censor: "https://telegraph-image-bak.pages.dev/file/3376074a7ef187fba1eb4.jpg",
+        uncensor: "https://telegraph-image-bak.pages.dev/file/c4c81e2a167425d6f8623.jpg",
+    },
     {
         title: "Nữ sinh cao trung cắn",
         censor: "https://img.kemono.su/thumbnail/data/7e/11/7e110eb9f59b3ddbf78059a05e91324931407d1f22d873e625abc2f795d12ac5.jpg",
