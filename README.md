@@ -2,7 +2,7 @@
 
 Mình nghịch dựa trên ý tưởng của một viral clip gần đây về việc đồng bộ vị trí của phần tử khi mở nhiều cửa sổ trình duyệt khác nhau chấp cả việc cửa sổ trình duyệt có di chuyển hay thay đổi kích cỡ như thế nào đi nữa. [Link video](https://twitter.com/_nonfigurativ_).
 
-[Demo](zennomi.github.io/Seg-Mirror/)
+[Demo](https://zennomi.github.io/Seg-Mirror/)
 
 - **react-draggable**: Giúp kéo ảnh di chuyển
 - **Broadcast Channel API**: Trao đổi thông tin giữa các cửa sổ
