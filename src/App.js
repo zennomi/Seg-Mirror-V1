@@ -134,7 +134,7 @@ function App() {
                 <h1 className="text-4xl font-extrabold leading-none tracking-tight text-gray-900  dark:text-white uppercase mb-2">Gương chiếu sếch</h1>
                 <a
                   target='_blank'
-                  href="https://github.com/zennomi/Seg-Mirror"
+                  href="https://github.com/zennomi/Seg-Mirror-V1"
                   className="inline-flex gap-x-1 mb-2 items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
